@@ -1,0 +1,62 @@
+{
+  "DEFAULT_PARAMETERS": {
+    "fold_id": ["MULTIPLY",[0,1,2]],
+    "training_steps": 100000,
+    "batch_size": 32,
+    "optimizer_name": ["MULTIPLY",["Adam","RMSprop"]],
+    "optimizer_args": {"lr": 0.001},
+    "scheduler_name": "StepLR",
+    "scheduler_args": {"step_size": 1000, "gamma": 0.5},
+    "loss_name": ["MULTIPLY",["MSELoss","SmoothL1Loss"]],
+    "validation_freq": 1000,
+    "checkpoint_freq": 5000,
+    "max_pretraining_steps": 10000,
+    "pretraining_batch_size": 2048
+  },
+
+  "GROUP:simple_cnn": {
+    "GROUP:resnets": {
+      "model_name": ["MULTIPLY",["resnet18","resnet34","resnet50","resnet101","resnet152"]]
+    },
+    "GROUP:densenets": {
+      "model_name": ["MULTIPLY",["densenet121","densenet161","densenet169","densenet201"]]
+    },
+    "GROUP:small_networks": {
+      "model_name": ["MULTIPLY",["squeezenet1_0","squeezenet1_1","mobilenet_v2"]]
+    },
+    "GROUP:shufflenets": {
+      "model_name": ["MULTIPLY",["shufflenet_v2_x0_5","shufflenet_v2_x1_0","shufflenet_v2_x1_5","shufflenet_v2_x2_0"]],
+      "model_args": {
+        "pretrained": false,
+        "num_classes": 33
+      }
+    },
+    "DEFAULT_PARAMETERS": {
+      "job_type": "train_cnn",
+      "model_args": {
+        "pretrained": true,
+        "num_classes": 33
+      },
+      "dataset_args": {
+        "image_source": "raw_images",
+        "patch_size": 224,
+        "low_res": ["MULTIPLY",[true,false]]
+      }
+    }
+  },
+
+  "GROUP:aux_cnn": {
+    "model_name": ["MULTIPLY",["googlenet","inception_v3"]],
+    "job_type": "train_cnn",
+    "dataset_args": {
+      "image_source": "raw_images",
+      "patch_size": ["ADD","model_name",{"googlenet": 224,"inception_v3": 299}],
+      "low_res": ["MULTIPLY",[true,false]]
+    },
+    "model_args": {
+      "pretrained": true,
+      "num_classes": 33,
+      "aux_weights": ["ADD","patch_size","IN","dataset_args",{"224": [0.4, 0.3],"299": [0.4]}]}
+  }
+}
+

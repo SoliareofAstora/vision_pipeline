@@ -1,0 +1,17 @@
+name: bacteria
+channels:
+  - pytorch
+  - default
+  - conda-forge
+dependencies:
+  - python=3.8
+  - conda-forge
+  - cudnn
+  - pytorch
+  - torchvision
+  - conda:
+    - numpy
+    - pandas
+    - pytorch=1.7
+    - torchvision
+    - scikit-image=0.17.1
